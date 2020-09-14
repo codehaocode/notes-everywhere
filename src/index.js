@@ -1,72 +1,29 @@
 const express = require('express');
-const { ApolloServer, gql } = require('apollo-server-express');
+const { ApolloServer } = require('apollo-server-express');
+require('dotenv').config();
 
-// Run the server on a port specified in our .env file or port 3000
+const db = require('./db');
+const models = require('./models');
+const typeDefs = require('./schema');
+const resolvers = require('./resolvers');
+
+// Run our server on a port specified in our .env file or port 3000
 const port = process.env.PORT || 3000;
-
-let notes = [
-  {
-    id: '1',
-    content: 'This is a note',
-    author: 'Yu'
-  },
-  {
-    id: '2',
-    content: 'This is another note',
-    author: 'Hao'
-  },
-  {
-    id: '3',
-    content: 'Oh hey look, another note!',
-    author: 'Zhong'
-  }
-];
-
-// Construct a schema, using GraphQL's schema language
-const typeDefs = gql`
-  type Note {
-    id: ID
-    content: String
-    author: String
-  }
-
-  type Query {
-    hello: String
-    notes: [Note]
-    note(id: ID): Note
-  }
-
-  type Mutation {
-    newNote(content: String!): Note
-  }
-`;
-
-// Provide resolver functions for our schema fields
-const resolvers = {
-  Query: {
-    hello: () => 'Hello world!',
-    notes: () => notes,
-    note: (parent, args) => {
-      return notes.find(note => note.id === args.id);
-    }
-  },
-  Mutation: {
-    newNote: (parent, args) => {
-      let noteValue = {
-        id: String(notes.length + 1),
-        content: args.content,
-        author: 'Yuhao Zhong'
-      };
-      notes.push(noteValue);
-      return noteValue;
-    }
-  }
-};
+const DB_HOST = process.env.B_HOST;
 
 const app = express();
 
+db.connect(DB_HOST);
+
 // Apollo Server setup
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: () => {
+    // add the db models to the context
+    return { models };
+  }
+});
 
 // Apply the Apollo GraphQL middleware and set the path to /api
 server.applyMiddleware({ app, path: '/api' });

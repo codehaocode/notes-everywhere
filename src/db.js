@@ -1,66 +1,29 @@
-const express = require('express');
-const { ApolloServer, gql } = require('apollo-server-express');
-require('dotenv').config();
+// Require the mongose library
+const mongoose = require('mongoose');
 
-const db = require('./db');
-const models = require('./models');
-
-// Run our server on a port specified in our .env file or port 4000
-const port = process.env.PORT || 4000;
-const DB_HOST = process.env.DB_HOST;
-
-// Construct a schema, using GraphQL's schema language
-const typeDefs = gql`
-  type Note {
-    id: ID
-    content: String
-    author: String
-  }
-
-  type Query {
-    hello: String
-    notes: [Note]
-    note(id: ID): Note
-  }
-
-  type Mutation {
-    newNote(content: String!): Note
-  }
-`;
-
-// Provide resolver functions for our schema fields
-const resolvers = {
-  Query: {
-    hello: () => 'Hello world!',
-    notes: async () => {
-      return await models.Note.find();
-    },
-    note: async (parent, args) => {
-      return await models.Note.findById(args.id);
-    }
+module.exports = {
+  connect: DB_HOST => {
+    // Use the Mongo driver's updated URL string parser
+    mongoose.set('useNewUrlParser', true);
+    // Use `findOneAndUpdate()` in place of findAndModify()
+    mongoose.set('useFindAndModify', false);
+    // Use `createIndex()` in place of `ensureIndex()`
+    mongoose.set('useCreateIndex', true);
+    // Use the new server discovery & monitoring engine
+    mongoose.set('useUnifiedTopology', true);
+    // Connect to the DB
+    mongoose.connect(DB_HOST);
+    // Log an error if we fail to connect
+    mongoose.connection.on('error', err => {
+      console.error(err);
+      console.log(
+        'MongoDB connection error. Please make sure MongoDB is running.'
+      );
+      process.exit();
+    });
   },
-  Mutation: {
-    newNote: async (parent, args) => {
-      return await models.Note.create({
-        content: args.content,
-        author: 'Yuhao Zhong'
-      });
-    }
+
+  close: () => {
+    mongoose.connection.close();
   }
 };
-
-const app = express();
-
-db.connect(DB_HOST);
-
-// Apollo Server setup
-const server = new ApolloServer({ typeDefs, resolvers });
-
-// Apply the Apollo GraphQL middleware and set the path to /api
-server.applyMiddleware({ app, path: '/api' });
-
-app.listen({ port }, () =>
-  console.log(
-    `GraphQL Server running at http://localhost:${port}${server.graphqlPath}`
-  )
-);

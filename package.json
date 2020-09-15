@@ -1,10 +1,24 @@
 {
   "name": "notes-everywhere",
   "version": "0.1.0",
+  "description": "Universal Note App",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "nodemon src/index.js",
+    "dev": "nodemon src/index.js",
+    "final": "nodemon final/index.js",
+    "seed": "node final/util/seed/index.js",
+    "lint": "eslint \"src/**/*.js\""
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "**.test.js"
+    ]
+  },
+  "keywords": [],
+  "license": "MIT",
+  "author": "Yuhao Zhong",
   "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^7.2.1",
     "apollo-server-express": "2.4.0",
     "bcrypt": "5.0.0",
     "cors": "2.8.5",
@@ -22,10 +36,7 @@
     "mongoose": "5.7.13",
     "nodemon": "1.18.7",
     "passport": "0.4.0",
-    "passport-github2": "0.1.11",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.3"
+    "passport-github2": "0.1.11"
   },
   "devDependencies": {
     "eslint": "5.13.0",
@@ -34,27 +45,5 @@
     "faker": "4.1.0",
     "node-fetch": "^2.6.1",
     "prettier": "1.18.2"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "dev": "nodemon src/index.js"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   }
 }

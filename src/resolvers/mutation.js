@@ -146,6 +146,7 @@ module.exports = {
       // normalize email address
       email = email.trim().toLowerCase();
     }
+
     const user = await models.User.findOne({
       $or: [{ email }, { username }]
     });
